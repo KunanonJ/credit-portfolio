@@ -1,3 +1,18 @@
+/*
+ * Credit Portfolio — responsive layout map (reference for @media rules)
+ * ---------------------------------------------------------------------
+ * Core tokens: --bp-sm 640px · --bp-md 768px · --bp-lg 1024px · --bp-xl 1280px (see .credit-portfolio-shell).
+ * Typical ranges used in this file:
+ *   ≤479px  — extra-narrow phones (summary grid single column)
+ *   ≤560px  — tight phones (theme toggle full-width row; filter toolbar hint)
+ *   ≤767px  — phone / small tablet portrait (chart min-width scroll; scroll-hint copy)
+ *   ≤899px  — tablet / wrapped nav (--snap-nav-est); audit rows min-width; panel padding tighten
+ *   900px+  — graph grid 2-up; snap-nav nowrap; plan-summary 4 columns; plan-layout 2 columns
+ *   1024px+ — hero 2-col; account card density; (legacy anchors for wide layouts)
+ * Anchors: html scroll-padding-top uses --section-scroll-pad + --snap-nav-est (108px when ≤899px, 124px when ≤380px).
+ * Verify: 320, 375, 390, 414, 428, 768, 834, 1024, 1280, 1440 CSS logical widths.
+ */
+
 /* Credit Portfolio — responsive UX: hopeful / fresh / powerful */
 
 .credit-portfolio-shell {
@@ -29,6 +44,50 @@
   --bp-md: 768px;
   --bp-lg: 1024px;
   --bp-xl: 1280px;
+  --chart-track: rgba(255, 255, 255, 0.05);
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --grid-mask-opacity: 0.28;
+  --table-head-bg: #0f1115;
+  --audit-sticky-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
+  --nav-fade-0: rgba(7, 7, 9, 0.92);
+  --nav-fade-mid: rgba(7, 7, 9, 0.75);
+  --nav-fade-reduced: rgba(7, 7, 9, 0.96);
+  --nav-chip-bg: rgba(255, 255, 255, 0.04);
+  --filter-active-ring: rgba(255, 255, 255, 0.12);
+  --subtle-ring: rgba(255, 255, 255, 0.04);
+}
+
+html[data-theme="light"] .credit-portfolio-shell {
+  --bg: #f2f3f7;
+  --bg-soft: rgba(0, 0, 0, 0.05);
+  --panel: rgba(255, 255, 255, 0.88);
+  --panel-solid: #e4e6ed;
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #18181b;
+  --muted: #52525b;
+  --accent: #5b6cff;
+  --accent-soft: rgba(91, 108, 255, 0.14);
+  --fresh: #059669;
+  --fresh-soft: rgba(5, 150, 105, 0.12);
+  --hope: #ca8a04;
+  --hope-soft: rgba(202, 138, 4, 0.1);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.12);
+  --success: #0d9488;
+  --success-soft: rgba(13, 148, 136, 0.12);
+  --shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  --shadow-lift: 0 20px 50px rgba(15, 23, 42, 0.06);
+  --chart-track: rgba(0, 0, 0, 0.07);
+  --grid-line: rgba(0, 0, 0, 0.06);
+  --grid-mask-opacity: 0.45;
+  --table-head-bg: #e8eaf2;
+  --audit-sticky-shadow: 4px 0 12px rgba(15, 23, 42, 0.08);
+  --nav-fade-0: rgba(242, 243, 247, 0.94);
+  --nav-fade-mid: rgba(242, 243, 247, 0.78);
+  --nav-fade-reduced: rgba(242, 243, 247, 0.98);
+  --nav-chip-bg: rgba(0, 0, 0, 0.05);
+  --filter-active-ring: rgba(0, 0, 0, 0.12);
+  --subtle-ring: rgba(0, 0, 0, 0.07);
 }
 
 .credit-portfolio-shell *,
@@ -51,6 +110,10 @@ html.credit-portfolio-html {
   color-scheme: dark;
   scroll-behavior: smooth;
   scroll-padding-top: var(--section-scroll-pad);
+}
+
+html.credit-portfolio-html[data-theme="light"] {
+  color-scheme: light;
 }
 
 @media (max-width: 899px) {
@@ -111,6 +174,11 @@ html.credit-portfolio-html {
   animation-delay: -6s;
 }
 
+html[data-theme="light"] .ambient-glow,
+html[data-theme="light"] .ambient-glow.glow-2 {
+  opacity: 0.5;
+}
+
 @keyframes slideUpFade {
   0% { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -139,10 +207,10 @@ body.credit-portfolio-body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.28;
+  opacity: var(--grid-mask-opacity);
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: clamp(20px, 4vw, 28px) clamp(20px, 4vw, 28px);
   mask-image: radial-gradient(ellipse 85% 70% at 50% 35%, black 25%, transparent 100%);
   z-index: -1;
@@ -157,8 +225,8 @@ body.credit-portfolio-body::before {
   padding: 0 var(--page-pad-x);
   background: linear-gradient(
     180deg,
-    rgba(7, 7, 9, 0.92) 0%,
-    rgba(7, 7, 9, 0.75) 70%,
+    var(--nav-fade-0) 0%,
+    var(--nav-fade-mid) 70%,
     transparent 100%
   );
   backdrop-filter: blur(14px);
@@ -171,7 +239,7 @@ body.credit-portfolio-body::before {
   .snap-nav-wrap {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background: rgba(7, 7, 9, 0.96);
+    background: var(--nav-fade-reduced);
   }
 }
 
@@ -185,10 +253,247 @@ body.credit-portfolio-body::before {
   border-bottom: 1px solid var(--border);
 }
 
+.theme-toggle {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.theme-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 999px;
+  min-height: 36px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  color: var(--muted);
+  background: transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.theme-toggle__icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.88;
+}
+
+/* Lucide icons — consistent sizing; decorative only (aria-hidden in TSX) */
+.cp-icon {
+  flex-shrink: 0;
+  stroke-width: 2;
+}
+
+.cp-icon--nav {
+  width: 15px;
+  height: 15px;
+}
+
+.cp-icon--section {
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  color: var(--fresh);
+}
+
+.cp-icon--metric {
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+  margin-top: 1px;
+}
+
+.cp-icon--insight {
+  width: 20px;
+  height: 20px;
+  color: var(--hope);
+}
+
+.cp-icon--graph {
+  width: 17px;
+  height: 17px;
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.cp-icon--issuer {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+}
+
+.cp-icon--footnote {
+  width: 16px;
+  height: 16px;
+  margin-top: 3px;
+  color: var(--accent);
+}
+
+.cp-icon--meta {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+.cp-icon--filter {
+  width: 15px;
+  height: 15px;
+}
+
+.cp-icon--status {
+  width: 14px;
+  height: 14px;
+}
+
+.section-head__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  max-width: min(100%, 28ch);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.section-head__title > span {
+  min-width: 0;
+}
+
+.graph-head__title,
+.plan-graph-head__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-family: "Outfit", "Inter", sans-serif;
+  font-size: clamp(1.1rem, 2vw, 1.28rem);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.graph-head__title > span,
+.plan-graph-head__title > span {
+  min-width: 0;
+}
+
+.metric-tile__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.metric-tile__head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.plan-metric__head,
+.audit-metric__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.plan-metric__head p,
+.audit-metric__head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.insight-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.insight-card__head strong {
+  flex: 1;
+  min-width: 0;
+}
+
+.issuer-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.footnote-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.footnote-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--muted);
+  font-size: clamp(0.92rem, 1.8vw, 0.98rem);
+  line-height: 1.55;
+}
+
+.footnote-list li > span {
+  min-width: 0;
+}
+
+.theme-toggle__btn:hover {
+  color: var(--text);
+  background: var(--bg-soft);
+}
+
+.theme-toggle__btn:focus-visible {
+  outline: 2px solid var(--fresh);
+  outline-offset: 2px;
+}
+
+.theme-toggle__btn.is-active {
+  color: var(--text);
+  background: linear-gradient(
+    135deg,
+    rgba(52, 211, 153, 0.28),
+    rgba(124, 140, 255, 0.28)
+  );
+  box-shadow: 0 0 0 1px var(--filter-active-ring);
+}
+
+@media (max-width: 560px) {
+  .theme-toggle {
+    flex-basis: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
 .snap-nav__link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   min-height: 44px;
   padding: 10px 14px;
   border-radius: 999px;
@@ -197,7 +502,7 @@ body.credit-portfolio-body::before {
   letter-spacing: 0.02em;
   color: var(--muted);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--nav-chip-bg);
   border: 1px solid transparent;
   transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
 }
@@ -421,11 +726,8 @@ h1 {
   margin-bottom: clamp(14px, 2vw, 18px);
 }
 
-.section-head h2 {
+.section-head h2.section-head__title {
   margin: 0;
-  font-size: clamp(1.45rem, 3vw, 2rem);
-  letter-spacing: -0.03em;
-  max-width: 22ch;
 }
 
 .section-subtext {
@@ -433,6 +735,99 @@ h1 {
   max-width: min(72ch, 100%);
   color: var(--muted);
   font-size: clamp(0.92rem, 1.8vw, 0.98rem);
+}
+
+/* Accounts — eyebrow → filters → list rhythm (toolbar was unstyled) */
+.accounts-panel .section-head {
+  margin-bottom: clamp(18px, 2.5vw, 26px);
+}
+
+.filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 14px;
+  margin-bottom: clamp(18px, 2.4vw, 26px);
+  padding: clamp(12px, 1.8vw, 16px) clamp(14px, 2.2vw, 18px);
+  border-radius: var(--radius-small);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+}
+
+.filter-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+@media (max-width: 560px) {
+  .filter-hint {
+    margin-left: 0;
+    flex-basis: 100%;
+    padding-top: 4px;
+  }
+}
+
+.account-list {
+  display: grid;
+  gap: clamp(16px, 2.4vw, 22px);
+}
+
+.accounts-panel .account-card {
+  gap: clamp(16px, 2.2vw, 22px);
+  padding: clamp(20px, 3vw, 28px);
+}
+
+@media (min-width: 1024px) {
+  .accounts-panel .account-card {
+    gap: 18px;
+    padding: 22px 26px;
+  }
+}
+
+.account-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.account-card__top > div:first-child strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: clamp(1.12rem, 2.2vw, 1.38rem);
+  letter-spacing: -0.03em;
+}
+
+.account-card__top > div:first-child p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.accounts-panel .account-meta {
+  row-gap: 16px;
+  column-gap: clamp(16px, 2.5vw, 24px);
+}
+
+.account-meta dt {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.account-meta dd {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  line-height: 1.35;
 }
 
 .section-head-split {
@@ -461,6 +856,24 @@ h1 {
 @media (min-width: 900px) {
   .graph-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile/tablet: visible cue that charts and tables scroll horizontally */
+.scroll-hint {
+  display: none;
+  margin: 0 0 10px;
+  padding: 0;
+  max-width: 48ch;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+@media (max-width: 899px) {
+  .scroll-hint {
+    display: block;
   }
 }
 
@@ -498,13 +911,6 @@ h1 {
 
 .graph-head {
   margin-bottom: 14px;
-}
-
-.graph-head h3 {
-  margin: 0 0 6px;
-  font-family: "Outfit", "Inter", sans-serif;
-  font-size: clamp(1.1rem, 2vw, 1.28rem);
-  letter-spacing: -0.02em;
 }
 
 .graph-head p {
@@ -546,7 +952,7 @@ h1 {
 }
 
 .chart-track {
-  fill: rgba(255, 255, 255, 0.05);
+  fill: var(--chart-track);
 }
 
 .chart-value {
@@ -614,18 +1020,21 @@ h1 {
   font-variant-numeric: tabular-nums;
 }
 
+/* Match graph-card “Balance by issuer” SVG: .chart-track + issuerGradient (#d49571 → #9d4d31) */
 .issuer-bar {
   height: 14px;
   border-radius: 999px;
-  background: var(--bg-soft);
+  background: var(--chart-track);
   overflow: hidden;
 }
 
 .issuer-bar > span {
   display: block;
   height: 100%;
+  min-width: 2px;
   border-radius: inherit;
-  background: linear-gradient(90deg, #2dd4bf, #6366f1);
+  background: linear-gradient(90deg, #d49571 0%, #9d4d31 100%);
+  box-shadow: 0 0 14px rgba(212, 149, 113, 0.3);
 }
 
 .filter-group {
@@ -641,6 +1050,10 @@ h1 {
 }
 
 .filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: 0;
   border-radius: 999px;
   min-height: 44px;
@@ -667,7 +1080,7 @@ h1 {
 .filter-button.is-active {
   background: linear-gradient(135deg, rgba(52, 211, 153, 0.35), rgba(124, 140, 255, 0.35));
   color: var(--text);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 0 1px var(--filter-active-ring);
 }
 
 .card-grid {
@@ -742,6 +1155,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   min-height: 32px;
   padding: 8px 12px;
   border-radius: 999px;
@@ -774,6 +1188,7 @@ h1 {
 
 .account-meta {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px clamp(14px, 2.2vw, 20px);
 }
 
 .account-stats {
@@ -835,7 +1250,7 @@ h1 {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
   .plan-layout {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
@@ -900,7 +1315,7 @@ h1 {
 .plan-order-item.is-primary {
   background: linear-gradient(145deg, rgba(52, 211, 153, 0.1), rgba(124, 140, 255, 0.08));
   border-color: rgba(52, 211, 153, 0.28);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  box-shadow: 0 0 0 1px var(--subtle-ring);
 }
 
 .plan-order-head,
@@ -963,8 +1378,122 @@ h1 {
   line-height: 1.6;
 }
 
+/* Debt Freedom Plan — header rhythm, metric grid, attack order / action plan columns */
+section[aria-labelledby="plan-heading"] .section-head {
+  margin-bottom: clamp(18px, 2.5vw, 28px);
+}
+
+section[aria-labelledby="plan-heading"] .section-subtext {
+  margin-top: clamp(12px, 1.8vw, 16px);
+}
+
+section[aria-labelledby="plan-heading"] .plan-summary {
+  gap: clamp(14px, 2vw, 20px);
+  margin-bottom: clamp(22px, 3vw, 36px);
+}
+
+section[aria-labelledby="plan-heading"] .plan-metric {
+  padding: clamp(16px, 2.2vw, 22px);
+}
+
+section[aria-labelledby="plan-heading"] .plan-metric__head {
+  margin-bottom: 10px;
+}
+
+section[aria-labelledby="plan-heading"] .plan-metric span {
+  margin-top: 10px;
+}
+
+section[aria-labelledby="plan-heading"] .plan-layout {
+  gap: clamp(20px, 3vw, 32px);
+}
+
+section[aria-labelledby="plan-heading"] .plan-card {
+  padding: clamp(18px, 2.4vw, 26px);
+}
+
+section[aria-labelledby="plan-heading"] .graph-head {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.4vw, 14px);
+  margin-bottom: clamp(16px, 2.2vw, 24px);
+}
+
+section[aria-labelledby="plan-heading"] .graph-head .graph-head__title {
+  margin-bottom: 0;
+}
+
+section[aria-labelledby="plan-heading"] .graph-head p {
+  line-height: 1.55;
+}
+
+section[aria-labelledby="plan-heading"] .plan-order,
+section[aria-labelledby="plan-heading"] .plan-actions {
+  gap: clamp(14px, 2.2vw, 20px);
+}
+
+section[aria-labelledby="plan-heading"] .plan-order-item,
+section[aria-labelledby="plan-heading"] .plan-action-item {
+  padding: clamp(18px, 2.2vw, 24px);
+}
+
+section[aria-labelledby="plan-heading"] .plan-order-note {
+  margin-top: 14px;
+}
+
+section[aria-labelledby="plan-heading"] .plan-note {
+  margin-top: clamp(22px, 3.2vw, 34px);
+  padding: clamp(16px, 2.2vw, 24px);
+}
+
+/* Minimum-expenses audit — section stack + comparison panel density */
+section[aria-labelledby="audit-heading"] .section-head {
+  margin-bottom: 0;
+}
+
+section[aria-labelledby="audit-heading"] .section-subtext {
+  margin-top: 12px;
+  margin-bottom: clamp(18px, 2.6vw, 28px);
+}
+
+section[aria-labelledby="audit-heading"] .audit-summary {
+  gap: clamp(14px, 2vw, 20px);
+  margin-bottom: clamp(4px, 1vw, 8px);
+}
+
 .audit-graph-card {
   margin-bottom: 18px;
+}
+
+section[aria-labelledby="audit-heading"] .audit-graph-card {
+  margin-top: clamp(4px, 1vw, 10px);
+  margin-bottom: clamp(20px, 2.8vw, 30px);
+  padding: clamp(18px, 2.4vw, 26px);
+}
+
+section[aria-labelledby="audit-heading"] .graph-head {
+  margin-bottom: clamp(16px, 2.2vw, 22px);
+}
+
+section[aria-labelledby="audit-heading"] .compare-scroll {
+  margin: 0 -4px;
+  padding: clamp(10px, 1.6vw, 16px);
+}
+
+section[aria-labelledby="audit-heading"] .compare-chart {
+  gap: clamp(18px, 2.6vw, 26px);
+}
+
+section[aria-labelledby="audit-heading"] .compare-row {
+  gap: clamp(12px, 2vw, 18px);
+}
+
+section[aria-labelledby="audit-heading"] .compare-bars {
+  gap: clamp(10px, 1.6vw, 14px);
+}
+
+section[aria-labelledby="audit-heading"] .audit-table {
+  margin-top: clamp(8px, 1.2vw, 14px);
 }
 
 .audit-metric {
@@ -1003,11 +1532,11 @@ h1 {
   left: 0;
   z-index: 2;
   background: var(--panel-solid);
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--audit-sticky-shadow);
 }
 
 .audit-row.audit-head .audit-cell:first-child {
-  background: #0f1115;
+  background: var(--table-head-bg);
   z-index: 3;
 }
 
@@ -1103,12 +1632,16 @@ h1 {
   border-bottom: 1px solid var(--border);
 }
 
+section[aria-labelledby="audit-heading"] .audit-row:not(.audit-head) {
+  padding: 17px 18px;
+}
+
 .audit-row:last-child {
   border-bottom: 0;
 }
 
 .audit-row.audit-head {
-  background: #0f1115;
+  background: var(--table-head-bg);
 }
 
 .audit-row.audit-head .audit-cell {

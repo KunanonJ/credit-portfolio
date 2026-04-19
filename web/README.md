@@ -28,25 +28,33 @@ Server-side parsing lives in `lib/env.ts` (`NODE_ENV` is optional and usually se
 | Command | Purpose |
 |---------|---------|
 | `npm run dev` | Development server at [http://localhost:3000](http://localhost:3000) |
-| `npm run build` | Production build (`.next/`) |
-| `npm run start` | Serve production build (run `build` first) |
+| `npm run build` | Static export (`out/`) — `output: "export"` in `next.config.ts` |
+| `npm run preview` | Serve `out/` on port 3000 (run `build` first; used by CI E2E) |
 | `npm run lint` | ESLint |
 | `npm run test:e2e` | Playwright smoke tests (needs build + browsers; see below) |
 
 ## E2E tests (Playwright)
 
 1. Install browsers once: `npx playwright install chromium`
-2. Build the app: `npm run build`
-3. Run tests: `npm run test:e2e`
+2. **Local:** run `npm run dev`, then `npm run test:e2e` (Playwright reuses the dev server when not in CI).
+3. **CI-style (static):** `npm run build && CI=true npm run test:e2e` — serves `out/` via `npm run preview`.
 
-In CI, Chromium is installed automatically before `playwright test`. Locally you can also run `npm run dev` on port 3000 and use `npx playwright test` with reuse of the existing server (see `playwright.config.ts`).
+In CI, the workflow builds first, then runs Playwright against the static `out/` folder.
 
-## Deploy (e.g. Vercel)
+## Deploy
 
-- **Root directory:** set to `web/` if the host asks for a subdirectory.
+### GitHub Pages (primary for this repo)
+
+Workflow: [`.github/workflows/pages.yml`](../.github/workflows/pages.yml). On push to `main`, it builds with `NEXT_BASE_PATH=/<repository-name>` so assets resolve under `https://<user>.github.io/<repo>/`.
+
+**One-time setup:** Repository **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+### Other hosts (e.g. Vercel)
+
+- **Root directory:** `web/`
 - **Build command:** `npm run build`
-- **Output:** Next.js default (no static export unless you change config).
-- **Install:** `npm install` or `npm ci` in `web/`.
+- **Output / publish directory:** `out/` (static export)
+- **Base path:** If the site is not at domain root, set `NEXT_BASE_PATH` the same way as Pages (leading slash, no trailing slash), e.g. `/my-repo`.
 
 ## Legacy static site
 

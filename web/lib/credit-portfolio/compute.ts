@@ -1,5 +1,11 @@
 import type { Account, AprilAudit, DebtPlan } from "./schema";
-import { formatCurrency, formatSignedCurrency, formatRate, integer } from "./format";
+import { debtPlan } from "./data";
+import {
+  formatCurrency,
+  formatRate,
+  formatSignedCurrency,
+  integer,
+} from "./format";
 
 export function sum(values: number[]): number {
   return values.reduce((total, value) => total + value, 0);
@@ -115,6 +121,9 @@ export function buildHorizontalBarSvg<T>(
   const rowHeight = 60;
   const top = 18;
   const height = top * 2 + rowHeight * items.length;
+  /** Bar height in user units; rx/ry must be ≤ min(width,height)/2. Do not use huge rx (e.g. 999) — SVG clamps rx and ry independently, which turns wide rects into “spindle/eye” shapes instead of pills. */
+  const barH = 14;
+  const barR = barH / 2;
 
   const rows = items
     .map((item, index) => {
@@ -124,12 +133,13 @@ export function buildHorizontalBarSvg<T>(
       const value = valueAccessor(item);
       const formatted = escapeHtml(valueFormatter(value));
       const widthValue = Math.max((value / maxValue) * barWidth, 2);
+      const fillR = Math.min(barR, widthValue / 2);
 
       return `
         <text class="chart-label" x="${left}" y="${y + 16}">${label} &middot; <tspan class="chart-subtext">${subtext}</tspan></text>
         <text class="chart-value" x="${width - right}" y="${y + 16}" text-anchor="end">${formatted}</text>
-        <rect class="chart-track" x="${left}" y="${y + 26}" rx="999" ry="999" width="${barWidth}" height="14"></rect>
-        <rect class="animated-bar" x="${left}" y="${y + 26}" rx="999" ry="999" width="${widthValue}" height="14" fill="url(#${gradientId})"></rect>
+        <rect class="chart-track" x="${left}" y="${y + 26}" rx="${barR}" ry="${barR}" width="${barWidth}" height="${barH}"></rect>
+        <rect class="animated-bar" x="${left}" y="${y + 26}" rx="${fillR}" ry="${fillR}" width="${widthValue}" height="${barH}" fill="url(#${gradientId})"></rect>
       `;
     })
     .join("");
@@ -205,13 +215,67 @@ export function computeSummary(accounts: Account[], asOfDate: Date): SummarySnap
 
 export type Insight = { title: string; body: string };
 
+/** Maps portfolio account `name` to debt-plan ladder `label` for rate display. */
+const ACCOUNT_NAME_TO_PLAN_LABEL: Record<string, string> = {
+  "Thai Credit Loan": "Thai Credit Loan",
+  "UOB Credit Card": "UOB Privilemiles",
+  "UOB Cash Card": "UOB Cash",
+  "KKC Signature": "Krungsri Visa Signature",
+  "CardX1 UP2ME": "SCB Card Up2Me / CardX",
+  "CardX2 BEYOND": "SCB Card Up2Me / CardX",
+  "KTC1 World Rewards": "KTC World Credit Card",
+  "KTC2 World Rewards": "KTC World Credit Card",
+};
+
+export type AccountRow = {
+  id: string;
+  issuer: string;
+  product: string;
+  balance: number;
+  minimumDue: number;
+  rateLabel: string;
+  dueDate: Date;
+  /** Same labels as portfolio rollups/summary (`getDueState`). */
+  dueStateKey: DueStateKey;
+  dueLabel: string;
+};
+
+function rateLabelForAccount(account: Account): string {
+  const planLabel = ACCOUNT_NAME_TO_PLAN_LABEL[account.name];
+  const item = planLabel
+    ? debtPlan.items.find((i) => i.label === planLabel)
+    : undefined;
+  return item ? formatRate(item.rate) : "—";
+}
+
+export function deriveAccountRows(accounts: Account[], asOf: Date): AccountRow[] {
+  return accounts.map((account) => {
+    const due = getDueState(account, asOf);
+    return {
+      id: `${account.issuer}-${account.name}`.replaceAll(/\s+/g, "-"),
+      issuer: account.issuer,
+      product: account.name,
+      balance: account.balance,
+      minimumDue: account.minimumDue,
+      rateLabel: rateLabelForAccount(account),
+      dueDate: new Date(`${account.dueDate}T00:00:00`),
+      dueStateKey: due.key,
+      dueLabel: due.label,
+    };
+  });
+}
+
 export function computeInsights(accounts: Account[], asOfDate: Date): Insight[] {
+  if (accounts.length === 0) {
+    return [];
+  }
+
   const overdueAccounts = accounts.filter(
     (a) => getDueState(a, asOfDate).key === "overdue",
   );
   const upcomingCount = accounts.length - overdueAccounts.length;
-  const highestBalance = [...accounts].sort((a, b) => b.balance - a.balance)[0];
-  const highestMinimum = [...accounts].sort((a, b) => b.minimumDue - a.minimumDue)[0];
+  const highestBalance = [...accounts].sort((a, b) => b.balance - a.balance)[0]!;
+  const highestMinimum = [...accounts].sort((a, b) => b.minimumDue - a.minimumDue)[0]!;
 
   return [
     {
@@ -497,3 +561,6 @@ export function computeAuditPresentation(audit: AprilAudit): {
 
   return { metrics, chartRowsHtml, tableHtml };
 }
+
+export type DebtPlanPresentation = ReturnType<typeof computeDebtPlanPresentation>;
+export type AuditPresentation = ReturnType<typeof computeAuditPresentation>;

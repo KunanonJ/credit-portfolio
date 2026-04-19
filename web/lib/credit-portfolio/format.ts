@@ -22,3 +22,11 @@ export function formatRate(value: number): string {
   const fixed = value.toFixed(2);
   return `${fixed.endsWith(".00") ? integer.format(value) : fixed}%`;
 }
+
+export function formatDateLabel(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}

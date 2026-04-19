@@ -1,123 +1,134 @@
 "use client";
 
+import {
+  AlarmClock,
+  AlertCircle,
+  CalendarClock,
+  CreditCard,
+  Filter,
+  List,
+} from "lucide-react";
 import { useMemo, useState } from "react";
+
+import {
+  deriveAccountRows,
+  type DueStateKey,
+} from "@/lib/credit-portfolio/compute";
 import type { Account } from "@/lib/credit-portfolio/schema";
-import type { DueFilter } from "@/lib/credit-portfolio/schema";
-import { getDueState, limitText } from "@/lib/credit-portfolio/compute";
-import { formatCurrency } from "@/lib/credit-portfolio/format";
+import { formatCurrency, formatDateLabel } from "@/lib/credit-portfolio/format";
+import { cn } from "@/lib/utils";
 
-const FILTERS: { key: DueFilter; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "overdue", label: "Overdue" },
-  { key: "upcoming", label: "Upcoming" },
-];
-
-function sortAccounts(accounts: Account[]): Account[] {
-  return [...accounts].sort((a, b) => {
-    const byDue =
-      new Date(`${a.dueDate}T00:00:00`).getTime() -
-      new Date(`${b.dueDate}T00:00:00`).getTime();
-    if (byDue !== 0) return byDue;
-    return b.balance - a.balance;
-  });
-}
-
-export function AccountSection({
-  accounts,
-  asOf,
-}: {
+type Props = {
   accounts: Account[];
   asOf: Date;
-}) {
+};
+
+type DueFilter = "all" | "overdue" | "upcoming";
+
+function StatusIcon({ dueStateKey }: { dueStateKey: DueStateKey }) {
+  switch (dueStateKey) {
+    case "overdue":
+      return <AlertCircle className="cp-icon cp-icon--status" aria-hidden />;
+    case "today":
+      return <AlarmClock className="cp-icon cp-icon--status" aria-hidden />;
+    default:
+      return <CalendarClock className="cp-icon cp-icon--status" aria-hidden />;
+  }
+}
+
+export function AccountSection({ accounts, asOf }: Props) {
+  const rows = useMemo(() => deriveAccountRows(accounts, asOf), [accounts, asOf]);
   const [filter, setFilter] = useState<DueFilter>("all");
 
-  const sorted = useMemo(() => sortAccounts(accounts), [accounts]);
+  const filteredRows = useMemo(() => {
+    if (filter === "all") {
+      return rows;
+    }
+    return rows.filter((row) => {
+      if (filter === "overdue") {
+        return row.dueStateKey === "overdue";
+      }
+      return row.dueStateKey === "upcoming" || row.dueStateKey === "today";
+    });
+  }, [rows, filter]);
 
   return (
-    <section aria-labelledby="accounts-heading" className="panel">
-      <div className="section-head section-head-split">
-        <div>
-          <p className="eyebrow">Accounts</p>
-          <h2 id="accounts-heading">Statement-by-statement detail</h2>
-        </div>
-        <div className="filter-group" role="group" aria-label="Filter accounts by due status">
-          {FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              className={`filter-button${filter === key ? " is-active" : ""}`}
-              aria-pressed={filter === key}
-              data-filter={key}
-              onClick={() => setFilter(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+    <section className="panel accounts-panel" aria-labelledby="accounts-heading">
+      <div className="section-head">
+        <p className="eyebrow">Accounts</p>
+        <h2 id="accounts-heading" className="section-head__title">
+          <CreditCard className="cp-icon cp-icon--section" aria-hidden />
+          <span>Every card in one place</span>
+        </h2>
       </div>
-      <div className="card-grid" id="account-grid">
-        {sorted.map((account) => {
-          const dueState = getDueState(account, asOf);
-          const hidden = filter !== "all" && dueState.key !== filter;
-          return (
-            <article
-              key={`${account.issuer}-${account.name}`}
-              className="account-card"
-              data-status={dueState.key}
-              hidden={hidden}
-            >
-              <div className="card-top">
-                <div className="card-title">
-                  <strong>{account.name}</strong>
-                  <p>{account.issuer}</p>
-                </div>
-                <span className={`status-pill ${dueState.key}`}>{dueState.label}</span>
-              </div>
 
-              <div className="account-meta">
+      <div className="filter-toolbar" role="group" aria-label="Filter accounts by due status">
+        <button
+          type="button"
+          className={cn("filter-button", filter === "all" && "is-active")}
+          aria-pressed={filter === "all"}
+          onClick={() => setFilter("all")}
+        >
+          <List className="cp-icon cp-icon--filter" aria-hidden />
+          <span>All</span>
+        </button>
+        <button
+          type="button"
+          className={cn("filter-button", filter === "overdue" && "is-active")}
+          aria-pressed={filter === "overdue"}
+          onClick={() => setFilter("overdue")}
+        >
+          <AlertCircle className="cp-icon cp-icon--filter" aria-hidden />
+          <span>Overdue</span>
+        </button>
+        <button
+          type="button"
+          className={cn("filter-button", filter === "upcoming" && "is-active")}
+          aria-pressed={filter === "upcoming"}
+          onClick={() => setFilter("upcoming")}
+        >
+          <CalendarClock className="cp-icon cp-icon--filter" aria-hidden />
+          <span>Upcoming</span>
+        </button>
+        <span className="filter-hint">
+          <Filter className="cp-icon cp-icon--meta" aria-hidden />
+          Showing {filteredRows.length} of {rows.length}
+        </span>
+      </div>
+
+      <div className="account-list">
+        {filteredRows.map((row) => (
+            <article key={row.id} className="account-card">
+              <div className="account-card__top">
                 <div>
-                  <span>Statement date</span>
-                  <strong>
-                    {new Date(`${account.statementDate}T00:00:00`).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </strong>
+                  <strong>{row.issuer}</strong>
+                  <p>{row.product}</p>
+                </div>
+                <span className={`status-pill status-pill--${row.dueStateKey}`}>
+                  <StatusIcon dueStateKey={row.dueStateKey} />
+                  <span>{row.dueLabel}</span>
+                </span>
+              </div>
+              <dl className="account-meta">
+                <div>
+                  <dt>Balance</dt>
+                  <dd>{formatCurrency(row.balance)}</dd>
                 </div>
                 <div>
-                  <span>Due date</span>
-                  <strong>
-                    {new Date(`${account.dueDate}T00:00:00`).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </strong>
+                  <dt>Minimum</dt>
+                  <dd>{formatCurrency(row.minimumDue)}</dd>
                 </div>
-              </div>
-
-              <div className="account-stats">
-                <div className="account-stat">
-                  <span>Balance</span>
-                  <strong>{formatCurrency(account.balance)}</strong>
+                <div>
+                  <dt>Rate</dt>
+                  <dd>{row.rateLabel}</dd>
                 </div>
-                <div className="account-stat">
-                  <span>Minimum due</span>
-                  <strong>{formatCurrency(account.minimumDue)}</strong>
+                <div>
+                  <dt>Due</dt>
+                  <dd>{formatDateLabel(row.dueDate)}</dd>
                 </div>
-                <div className="account-stat">
-                  <span>Credit line</span>
-                  <strong>{limitText(account)}</strong>
-                </div>
-              </div>
-
-              <div className="account-note">
-                <p className="card-note">{account.note}</p>
-              </div>
+              </dl>
             </article>
-          );
-        })}
+        ))}
       </div>
     </section>
   );
