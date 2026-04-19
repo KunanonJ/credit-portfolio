@@ -1,0 +1,36 @@
+---
+description: Next.js 16 App Router stack, folders, and workflow for this repo
+alwaysApply: true
+---
+
+# Next.js 16 + TypeScript project standards
+
+## Stack
+
+- Next.js **16.2.1** (App Router), TypeScript **strict**, Tailwind CSS, shadcn/ui (Radix), Lucide React, Zod.
+
+## Code style
+
+- No `any`; prefer interfaces/types or Zod-inferred types.
+- Components: **arrow functions**, **PascalCase** filenames (e.g. `UserButton.tsx`).
+- Default **Server Components**; `'use client'` only for interactivity, hooks, or browser APIs.
+- DRY/SOLID; validate inputs with Zod on boundaries (Server Actions, Route Handlers, server utilities).
+
+## Layout
+
+- App routes: `web/app/` (kebab-case route segments).
+- `web/components/ui` — shadcn primitives; `web/components/shared` — reusable product components.
+- `web/lib` — server utilities, clients; `web/hooks`; `web/types`.
+- Utils/hooks: camelCase files (e.g. `useLocalStorage.ts`).
+
+## CSS / UI
+
+- Tailwind only; mobile-first; avoid inline `style={}` (exceptions: truly dynamic values with good reason).
+- No raw HTML project at repo root for new features — use the `web/` Next app.
+
+## Agent workflow
+
+- Non-trivial work: short plan in chat, then confirm before large diffs.
+- Before features needing secrets: check `web/.env.example` and document new vars there.
+- After significant changes: `npm run build` and/or `npm run lint` from `web/`.
+- Async server code: try/catch + structured errors; never trust unvalidated input.

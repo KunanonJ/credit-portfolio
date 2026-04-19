@@ -1,0 +1,12 @@
+---
+description: TypeScript and TSX conventions for src in web/
+globs: web/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript / TSX
+
+- `strict` mode; **no `any`** — use `unknown` + narrowing, generics, or Zod `z.infer`.
+- Prefer `type` vs `interface` consistently with existing files; export shared types from `web/types/` when reused.
+- Server vs client: avoid accidental `"use client"` barrels; pass serializable props across the boundary.
+- API routes / Server Actions: `const parsed = schema.safeParse(...)` first; return 400 on failure.

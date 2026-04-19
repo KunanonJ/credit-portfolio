@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Credit Portfolio Snapshot</title>
+    <meta
+      name="description"
+      content="A minimal one-page snapshot of card balances, payment due dates, and issuer-level exposure."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Credit Portfolio Snapshot</p>
+          <h1>One clean view of every balance, due date, and pressure point.</h1>
+          <p class="lede">
+            Built from the latest readable statements as of
+            <strong>April 19, 2026</strong>.
+          </p>
+        </div>
+
+        <section class="hero-panel summary-grid" aria-label="Portfolio summary">
+          <article class="metric-tile">
+            <p>Total outstanding</p>
+            <strong id="total-balance">THB 0.00</strong>
+          </article>
+          <article class="metric-tile">
+            <p>Total minimum due</p>
+            <strong id="total-minimum">THB 0.00</strong>
+          </article>
+          <article class="metric-tile">
+            <p>Overdue accounts</p>
+            <strong id="overdue-count">0</strong>
+          </article>
+          <article class="metric-tile">
+            <p>Next due</p>
+            <strong id="next-due">-</strong>
+          </article>
+        </section>
+      </header>
+
+      <main class="content">
+        <section class="panel insight-panel" aria-labelledby="insights-heading">
+          <div class="section-head">
+            <p class="eyebrow">Fast read</p>
+            <h2 id="insights-heading">What matters most right now</h2>
+          </div>
+          <div class="insight-grid" id="insights"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="graphs-heading">
+          <div class="section-head">
+            <p class="eyebrow">Graphs</p>
+            <h2 id="graphs-heading">Visual read of the portfolio</h2>
+            <p class="section-subtext">
+              A chart-first view of concentration risk and monthly payment pressure.
+            </p>
+          </div>
+          <div class="graph-grid">
+            <article class="graph-card">
+              <div class="graph-head">
+                <h3>Balance by issuer</h3>
+                <p>Where the total debt is concentrated.</p>
+              </div>
+              <div class="chart-shell" id="issuer-chart"></div>
+            </article>
+            <article class="graph-card">
+              <div class="graph-head">
+                <h3>Minimum due by account</h3>
+                <p>Which accounts are asking for the most cash this cycle.</p>
+              </div>
+              <div class="chart-shell" id="minimum-chart"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="plan-heading">
+          <div class="section-head">
+            <p class="eyebrow">Debt Freedom Plan</p>
+            <h2 id="plan-heading">Fastest route out from here</h2>
+            <p class="section-subtext">
+              This plan assumes the April 2026 payments entered in the sheet were already paid or
+              fully reserved, and that no new revolving debt is added from
+              <strong>April 19, 2026</strong> onward.
+            </p>
+          </div>
+          <div class="plan-summary" id="plan-summary"></div>
+          <div class="plan-layout">
+            <article class="plan-card">
+              <div class="graph-head">
+                <h3>Attack order</h3>
+                <p>
+                  Highest interest first. When the rate ties, clear the smaller balance first and
+                  roll that payment into the next debt.
+                </p>
+              </div>
+              <div class="plan-order" id="plan-order"></div>
+            </article>
+            <article class="plan-card">
+              <div class="graph-head">
+                <h3>Action plan</h3>
+                <p>What to do now so the fastest-payoff strategy actually works in real life.</p>
+              </div>
+              <div class="plan-actions" id="plan-actions"></div>
+            </article>
+          </div>
+          <div class="plan-note" id="plan-note"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="issuer-heading">
+          <div class="section-head">
+            <p class="eyebrow">Issuer view</p>
+            <h2 id="issuer-heading">Balance concentration</h2>
+          </div>
+          <div class="issuer-list" id="issuer-list"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="accounts-heading">
+          <div class="section-head section-head-split">
+            <div>
+              <p class="eyebrow">Accounts</p>
+              <h2 id="accounts-heading">Statement-by-statement detail</h2>
+            </div>
+            <div class="filter-group" role="group" aria-label="Filter accounts by due status">
+              <button class="filter-button is-active" data-filter="all" type="button">All</button>
+              <button class="filter-button" data-filter="overdue" type="button">Overdue</button>
+              <button class="filter-button" data-filter="upcoming" type="button">Upcoming</button>
+            </div>
+          </div>
+          <div class="card-grid" id="account-grid"></div>
+        </section>
+
+        <section class="panel" aria-labelledby="audit-heading">
+          <div class="section-head">
+            <p class="eyebrow">April 2026 Review</p>
+            <h2 id="audit-heading">Minimum Expenses audit from the sheet</h2>
+            <p class="section-subtext">
+              This section compares the <strong>Minimum Expenses</strong> amounts entered in the
+              April 2026 Google Sheet tab against the card statements that were available in the
+              PDF pack.
+            </p>
+          </div>
+          <div class="audit-summary" id="audit-summary"></div>
+          <div class="audit-graph-card">
+            <div class="graph-head">
+              <h3>Sheet vs statement comparison</h3>
+              <p>The blue bars are the sheet amounts. The darker bars are statement-backed references.</p>
+            </div>
+            <div class="compare-chart" id="audit-chart"></div>
+          </div>
+          <div class="audit-table" id="audit-table"></div>
+        </section>
+
+        <section class="panel footnotes" aria-labelledby="notes-heading">
+          <div class="section-head">
+            <p class="eyebrow">Notes</p>
+            <h2 id="notes-heading">Context behind the numbers</h2>
+          </div>
+          <ul>
+            <li>KTC statements use a shared credit limit of THB 360,000 across both KTC cards.</li>
+            <li>CardX statements each show THB 219,000, but that limit may be shared rather than additive.</li>
+            <li>Status labels use April 19, 2026 as the reference date, not today in a moving browser session.</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
